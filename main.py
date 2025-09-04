@@ -88,7 +88,7 @@ def index_page():
 
 
 @app.get("/jobs")
-def get_jobs(geoId:str, keywords:str, selectedFilters:str, count=50, start=0, spellCorrectionEnabled="true", JSESSIONID=''):
+def get_jobs(geoId:str, keywords:str, selectedFilters:str, count=50, start=0, spellCorrectionEnabled="true", JSESSIONID='', f_WT=None):
     conn, cursor = get_conn_e_cursor()
     li_at = get_li_at(cursor)
     applied_jobs = cursor.execute("SELECT id FROM applied_jobs;")
