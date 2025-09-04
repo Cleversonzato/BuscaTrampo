@@ -1,0 +1,141 @@
+<html>
+    <head>
+        <title>Buscador de trampos</title>
+    </head>
+    <body>
+
+        <div id="app">
+            <div class="config">
+                <input type="text" v-model="li_at"/> 
+                - <button v-on:click="update_li_at">Update li_at cookie</button> {{ li_at_msg }}
+                ||
+                <Textarea v-model="defaultPrompt" rows="2" cols="50"></Textarea>
+                - <button v-on:click="update_DefaultPrompt">Update default prompt</button> {{ prompt_update_msg }}
+            </div>
+            <div class="settings">
+                Search params
+                <div>
+                    </p>geoId
+                    <input type="geoId" v-model="jobSearchVariables.geoId"/>
+                    </p>keywords
+                    <input type="keywords" v-model="jobSearchVariables.keywords"/>
+                    </p>selectedFilters
+                    <input type="selectedFilters" v-model="jobSearchVariables.selectedFilters"/>
+                    </p>count
+                    <input type="count" v-model="jobSearchVariables.count"/>
+                    </p>start
+                    <input type="start" v-model="jobSearchVariables.start"/>
+                    </p>spellCorrectionEnabled
+                    <input type="spellCorrectionEnabled" v-model="jobSearchVariables.spellCorrectionEnabled"/>
+                </div>
+                <div class="settings">
+                    </p><button v-on:click="getJobs">search</button>
+                </div>
+                <div class="job" v-for="job in jobs">
+                    {{ job.title }} 
+                    <a v-bind:href="job.url" target="_blank" > job link </a> |
+                    <a v-bind:href="job.company_link" target="_blank"> company_link</a> |
+                    <button v-on:click="setAsApplied(job)" v-if="!job.checked" style="background-color: red; color: white;"> applied / ignore job </button> 
+                    <text v-else> applied. ID: {{job.id}}</text> | 
+                    <button v-if="!job.checked"v-on:click="getJobDescriptionPrompt(job)"> get job description / prompt </button>
+                    <Textarea v-model="job.prompt_description" rows="1" cols="50"></Textarea>
+                    {{ job.description }}
+                </div>
+            </div>
+
+        </div>      
+
+    </body>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    li_at:'',
+                    li_at_msg: '',
+                    prompt_update_msg: '',
+                    defaultPrompt: '',
+                    jobSearchVariables:{
+                        geoId:'100165017',
+                        keywords:'data scientist',
+                        selectedFilters:'(distance:List(25),timePostedRange:List(r86400))',
+                        count:50,
+                        start:0,
+                        spellCorrectionEnabled:"true",
+                        JSESSIONID:''
+                    },
+                    jobs: []
+                }
+            },
+
+            methods: {
+                async update_li_at() {
+                    fetch(`/update_li_at/${this.li_at}`, {method: 'PATCH'})                
+                        .then(response =>{
+                            if (response.status == 200 || response.status == 201){ this.li_at_msg =" - Atualizado"; } 
+                            else { console.log(response); this.li_at_msg =" - Erro"; }
+                        });
+                },
+                async update_DefaultPrompt() {
+                    fetch(`/update_default_prompt`, {
+                        method: 'PATCH', 
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({"default_prompt": this.defaultPrompt})
+                    }).then(response =>{
+                            if (response.status == 200 || response.status == 201){ this.update_msg = " - Atualizado"; } 
+                            else { console.log(response); this.prompt_update_msg = " - Erro"; }
+                        });
+                },            
+                async getJobs() {
+                    fetch('/jobs?geoId=' + this.jobSearchVariables.geoId +
+                            '&keywords=' + this.jobSearchVariables.keywords +
+                            '&selectedFilters=' + this.jobSearchVariables.selectedFilters +
+                            '&count=' + this.jobSearchVariables.count +
+                            '&start=' + this.jobSearchVariables.start +
+                            '&spellCorrectionEnabled=' + this.jobSearchVariables.spellCorrectionEnabled +
+                            '&JSESSIONID=' + this.jobSearchVariables.JSESSIONID,
+                        { method: 'GET'}
+                    ).then(response =>{
+                        response.json().then( jsonResponse =>{
+                            this.jobSearchVariables = jsonResponse.search_variables;
+                            this.jobs = jsonResponse.jobs;
+                            this.JSESSIONID = jsonResponse.JSESSIONID;
+                            this.li_at = jsonResponse.li_at
+                        })
+                    });
+                },
+                async setAsApplied(job) {
+                    fetch(`/applied`,{
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({id:job.id,  title: job.title, urn:job.urn, url: job.url, company_link: job.company_link})
+                    }).then(response =>{
+                        if (response.status == 200 || response.status == 201){ job.checked  = true; job.description = ""; } 
+                        else { console.log(response) }
+                    });    
+                          
+                },
+                async getJobDescriptionPrompt(job) {
+                    fetch(`/job_description/${job.jobPostingUrn}?li_at=${this.li_at}&JSESSIONID=${this.JSESSIONID}`, { method: 'GET'})
+                        .then(response =>{
+                        response.json().then( jsonResponse =>{
+                            job.prompt_description = jsonResponse.default_prompt + '\n\n' + jsonResponse.description
+                            job.description = jsonResponse.description
+                        })
+                    });
+                }
+            }
+        })
+
+        app.mount('#app')
+    </script>
+
+    <style>
+        .config { padding: 10px; background-color: #F0F8FF;}
+        .settings { padding: 5px; }
+        .job { padding: 10px; margin-left: 15%; }
+        button {padding: 5px 12px; border-radius: 4px; margin: 5px;}
+    </style>
+
+</html> 
