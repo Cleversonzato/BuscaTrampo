@@ -16,17 +16,41 @@
                 Search params
                 <div>
                     </p>geoId
-                    <input type="geoId" v-model="jobSearchVariables.geoId"/>
+                    <input type="text" v-model="jobSearchVariables.geoId"/>
+                    <select v-model="jobSearchVariables.geoId">
+                        <option v-for="option in geoIdOptions" :key="option.text" :value="option.value">
+                            {{ option.text }}
+                        </option>
+                    </select>
+
                     </p>keywords
-                    <input type="keywords" v-model="jobSearchVariables.keywords"/>
+                    <input type="text" v-model="jobSearchVariables.keywords"/>
+                    <select v-model="jobSearchVariables.keywords">
+                        <option v-for="option in keywordsOptions" :key="option.text" :value="option.value">
+                            {{ option.text }}
+                        </option>
+                    </select>
+
                     </p>selectedFilters
-                    <input type="selectedFilters" v-model="jobSearchVariables.selectedFilters"/>
+                    <input type="text" v-model="jobSearchVariables.selectedFilters"/>
+                    <select v-model="jobSearchVariables.selectedFilters">
+                        <option v-for="option in selectedFiltersOptions" :key="option.text" :value="option.value">
+                            {{ option.text }}
+                        </option>
+                    </select>
+
                     </p>count
-                    <input type="count" v-model="jobSearchVariables.count"/>
+                    <input type="text" v-model="jobSearchVariables.count"/>
                     </p>start
-                    <input type="start" v-model="jobSearchVariables.start"/>
+                    <input type="text" v-model="jobSearchVariables.start"/>
                     </p>spellCorrectionEnabled
-                    <input type="spellCorrectionEnabled" v-model="jobSearchVariables.spellCorrectionEnabled"/>
+                    <input type="text" v-model="jobSearchVariables.spellCorrectionEnabled"/>
+                        <select v-model="jobSearchVariables.spellCorrectionEnabled">
+                        <option v-for="option in spellCorrectionEnabledOptions" :key="option.text" :value="option.value">
+                            {{ option.text }}
+                        </option>
+                    </select>
+                    
                 </div>
                 <div class="settings">
                     </p><button v-on:click="getJobs">search</button>
@@ -38,7 +62,7 @@
                     <button v-on:click="setAsApplied(job)" v-if="!job.checked" style="background-color: red; color: white;"> applied / ignore job </button> 
                     <text v-else> applied. ID: {{job.id}}</text> | 
                     <button v-if="!job.checked"v-on:click="getJobDescriptionPrompt(job)"> get job description / prompt </button>
-                    <Textarea v-model="job.prompt_description" rows="1" cols="50"></Textarea>
+                    <Textarea v-model="job.prompt_description" rows="1" cols="50"></Textarea></p>
                     {{ job.description }}
                 </div>
             </div>
@@ -50,8 +74,28 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script>
         const app = Vue.createApp({
-            data() {
+            data() {                
                 return {
+                    geoIdOptions: [
+                        { text: 'Baden-Württemberg, Germany', value: '100165017' },
+                        { text: 'Stuttgart Region', value: '90009750' },
+                        { text: 'Germany', value: '101282230' },
+                        { text: 'European Union', value: '91000000' }
+                    ],
+                    keywordsOptions: [
+                        { text: 'data scientist', value: 'data scientist' },
+                        { text: 'data', value: 'data' },
+                    ],
+                    selectedFiltersOptions: [
+                        { text: '24h', value: '(timePostedRange:List(r86400))' },
+                        { text: '24h 25 distance', value: '(distance:List(25),timePostedRange:List(r86400))' },
+                        { text: '1 week', value: '(timePostedRange:List(r604800))' },
+                        { text: '1 week 25distance', value: '(distance:List(25),timePostedRange:List(r604800))' }
+                    ],
+                    spellCorrectionEnabledOptions: [
+                        { text: 'True', value: 'true' },
+                        { text: 'False', value: 'false' },
+                    ],
                     li_at:'',
                     li_at_msg: '',
                     prompt_update_msg: '',
@@ -60,7 +104,7 @@
                         geoId:'100165017',
                         keywords:'data scientist',
                         selectedFilters:'(distance:List(25),timePostedRange:List(r86400))',
-                        count:50,
+                        count:100,
                         start:0,
                         spellCorrectionEnabled:"true",
                         JSESSIONID:''
@@ -136,6 +180,7 @@
         .settings { padding: 5px; }
         .job { padding: 10px; margin-left: 15%; }
         button {padding: 5px 12px; border-radius: 4px; margin: 5px;}
+        input {border-radius: 4px; margin: 5px;}
     </style>
 
 </html> 
