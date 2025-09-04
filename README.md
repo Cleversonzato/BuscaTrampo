@@ -1,4 +1,5 @@
 # Quikcly made linkedin scraper:
+## [PT] feio, mas ta limpinho
 
 
 ## quick run:
