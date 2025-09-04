@@ -59,10 +59,10 @@
                     {{ job.title }} 
                     <a v-bind:href="job.url" target="_blank" > job link </a> |
                     <a v-bind:href="job.company_link" target="_blank"> company_link</a> |
+                    <button v-on:click="getJobDescriptionPrompt(job)"> get job description / prompt </button>
+                    <Textarea v-model="job.prompt_description" rows="1" cols="50"></Textarea> | 
                     <button v-on:click="setAsApplied(job)" v-if="!job.checked" style="background-color: red; color: white;"> applied / ignore job </button> 
-                    <text v-else> applied. ID: {{job.id}}</text> | 
-                    <button v-if="!job.checked"v-on:click="getJobDescriptionPrompt(job)"> get job description / prompt </button>
-                    <Textarea v-model="job.prompt_description" rows="1" cols="50"></Textarea></p>
+                    <text v-else> applied. ID: {{job.id}}</text> </p>
                     {{ job.description }}
                 </div>
             </div>
