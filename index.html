@@ -168,6 +168,7 @@
                         response.json().then( jsonResponse =>{
                             job.prompt_description = jsonResponse.default_prompt + '\n\n' + jsonResponse.description
                             job.description = jsonResponse.description
+                            this.defaultPrompt = jsonResponse.default_prompt
                         })
                     });
                 }
